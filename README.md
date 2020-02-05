@@ -2,7 +2,7 @@
 
 ## Overview
 
-####1. What is Economic Scenario Generator?
+### 1. What is Economic Scenario Generator?
 Economic Scenario Generator is a software tool that many financial institutions
 utilize to generate stochastic interest rates, equities, credits, FX,
 and/or other asset classes to fulfill their various needs. For example, an 
@@ -11,7 +11,7 @@ investing risky asset) to price exotic derivatives or review hedging
 strategies. Or, an insurer may utilize a Real-World ESG (realistic ESG with risk premium)
 to find the reserve requirements to meet regulatory demands. 
 
-####2. Features to be developed
+### 2. Features to be developed
 * Pull necessary market data from the Internet
 * Implement American Academy of Actuaries ESG in Python
 * Add Risk-Neutral ESG
