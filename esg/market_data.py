@@ -4,7 +4,6 @@ import xmltodict
 from http import client
 import logging
 from collections import OrderedDict
-import math
 
 RELIABLE_WEBSITE1 = "www.google.com"
 RELIABLE_WEBSITE2 = "www.amazon.com"
@@ -101,7 +100,7 @@ class CommunityTreasuryCurveImporter(__CloudImporter):
     DATE_NAVIGATION = [HEADER3, HEADER4, 'd:NEW_DATE', HEADER5]
     DATA_KEY = ['d:BC_1MONTH', 'd:BC_2MONTH', 'd:BC_3MONTH', 'd:BC_6MONTH', 'd:BC_1YEAR', 'd:BC_2YEAR',
                 'd:BC_3YEAR', 'd:BC_5YEAR', 'd:BC_7YEAR', 'd:BC_10YEAR', 'd:BC_20YEAR', 'd:BC_30YEAR']
-    CLEAN_KEY =['1M', '2M', '3M', '6M', '1Y', '2Y', '3Y', '5Y', '7Y', '10Y', '20Y', '30Y']
+    CLEAN_KEY = ['1M', '2M', '3M', '6M', '1Y', '2Y', '3Y', '5Y', '7Y', '10Y', '20Y', '30Y']
 
     def __init__(self):
         super().__init__()
@@ -121,7 +120,6 @@ class CommunityTreasuryCurveImporter(__CloudImporter):
         url = CommunityTreasuryCurveImporter.XML_URL.format(date.year)
         http = urllib3.PoolManager()
         http_response = http.request('GET', url)
-        cleaned_data = dict()
         dict_value = xmltodict.parse(http_response.data)[self.HEADER1][self.HEADER2]
         index_guess = min(max(0, (date.month - 1) * 20 + int(date.day * 5 / 7)), len(dict_value) - 1)
         # Improve look-up speed by providing a good initial guess. Binary search may or may not be faster.
@@ -155,9 +153,10 @@ class CommunityTreasuryCurveImporter(__CloudImporter):
     @staticmethod
     def _construct_market_data_dict(dictionary_val: dict):
         cleaned_data = OrderedDict()
+        print(dictionary_val)
         i = 0
         for key_name in CommunityTreasuryCurveImporter.DATA_KEY:
-            if key_name in dictionary_val.keys():
+            if key_name in dictionary_val.keys() and CommunityTreasuryCurveImporter.HEADER5 in dictionary_val[key_name]:
                 cleaned_data.setdefault(CommunityTreasuryCurveImporter.CLEAN_KEY[i], int(
                                         float(dictionary_val[key_name][CommunityTreasuryCurveImporter.HEADER5]) * 10000)
                                         / 1000000.0)
@@ -169,4 +168,4 @@ class CommunityTreasuryCurveImporter(__CloudImporter):
 
 if __name__ == "__main__":
     treasury = CommunityTreasuryCurveImporter()
-    print(treasury.pull_data(datetime.date(2020, 2, 7)))
+    print(treasury.pull_data(datetime.date(2018, 2, 7)))
