@@ -10,7 +10,7 @@ CONSTANT_A2 = 8121
 CONSTANT_C2 = 28411
 CONSTANT_R2 = 0.0000074373773
 CONSTANT_M3 = 243000
-CONSTANT_A3 = 4161
+CONSTANT_A3 = 4561
 CONSTANT_C3 = 51349
 NUM_ELEMENTS = 97
 
@@ -67,8 +67,23 @@ class AaaRandomNumberGenerator(object):
         return val
 
 
+def correlate_random_numbers(correlation_matrix: np.ndarray, uncorrelated_random_number: np.ndarray):
+    """
+    Uses Cholesky factorization method to determine a matrix mat_a such that mat_A * transpose(mat_a) = mat_corr,
+    where m_corr is a correlation matrix.
+    Given uncorrelated random numbers uncorrelated_random, the correlated random numbers correlated_random
+    can be found by mat_a * uncorrelated_random
+
+    :param correlation_matrix: correlation matrix with shape of num_variables by num_variables
+    :param uncorrelated_random_number: correlation matrix with shape of num_variables by num_observations
+    :return: correlated random numbers
+    """
+    factorized_matrix = np.linalg.cholesky(correlation_matrix)
+    return np.matmul(factorized_matrix, uncorrelated_random_number)
+
+
 if __name__ == "__main__":
     print("Checking implementation..")
-    rng = AaaRandomNumberGenerator(1)
+    rng = AaaRandomNumberGenerator(0)
     for i in range(100):
         print(rng.get_next())

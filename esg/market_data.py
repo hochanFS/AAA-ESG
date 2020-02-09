@@ -153,7 +153,6 @@ class CommunityTreasuryCurveImporter(__CloudImporter):
     @staticmethod
     def _construct_market_data_dict(dictionary_val: dict):
         cleaned_data = OrderedDict()
-        print(dictionary_val)
         i = 0
         for key_name in CommunityTreasuryCurveImporter.DATA_KEY:
             if key_name in dictionary_val.keys() and CommunityTreasuryCurveImporter.HEADER5 in dictionary_val[key_name]:
