@@ -12,21 +12,21 @@ class CurveConstructor(object):
     __CONSTANT20 = (1 - math.exp(-__CONSTANT_K * 20)) / (__CONSTANT_K * 20)
 
     def __init__(self, short_rate: float, long_rate: float):
+        self.short_rate = max(CurveConstructor.MINIMUM_SHORT_RATE, short_rate)
+        self.long_rate = max(CurveConstructor.MINIMUM_SHORT_RATE, long_rate)
         self.interpolated_rates = np.empty(10, dtype=float)
-        self.__interpolate(short_rate, long_rate)
+        self.__interpolate()
 
-    def __interpolate(self, short_rate: float, long_rate: float):
+    def __interpolate(self):
         """
         Uses Nelson Siegel two point interpolation
-        :param short_rate: interest rate at 1Y tenor
-        :param long_rate: interest rate at 20Y tenor
         """
-        b1 = (short_rate - long_rate) / (self.__CONSTANT1 - self.__CONSTANT20)
-        b0 = short_rate - b1 * self.__CONSTANT1
+        b1 = (self.short_rate - self.long_rate) / (self.__CONSTANT1 - self.__CONSTANT20)
+        b0 = self.short_rate - b1 * self.__CONSTANT1
         maturities = [0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 30]
         for i in range(10):
-            self.interpolated_rates[i] = b0 + b1 * (1 - math.exp(-self.__CONSTANT_K * maturities[i])
-                                                    / (self.__CONSTANT_K * maturities[i]))
+            self.interpolated_rates[i] = b0 + b1 * (1 - math.exp(-self.__CONSTANT_K * maturities[i]))\
+                                         / (self.__CONSTANT_K * maturities[i])
 
     def _calculate_bond_curves(self):
         bond_curves = np.empty(61, dtype=float)  # nth element indicates bond curve for n/2 Y tenor except 0th element
@@ -52,13 +52,13 @@ class CurveConstructor(object):
         for i in range(1, 21):
             bond_curves[40 + i] = self.interpolated_rates[8] +\
                                   (i / 20.0 * (self.interpolated_rates[9] - self.interpolated_rates[8]))
-        for i in range(1, 61):
+        for i in range(61):
             bond_curves[i] /= 2.0
         return bond_curves
 
     def calculate_spot_rates(self):
         bond_curves = self._calculate_bond_curves()
-        s = np.empty(10, dtype=float)
+        s = np.empty(61, dtype=float)
         spot_rates = np.empty(10, dtype=float)
         s[0] = bond_curves[0]
         s[1] = bond_curves[1]
@@ -66,11 +66,12 @@ class CurveConstructor(object):
         for i in range(2, 61):
             pv_factor = (1 - bond_curves[i] * annuity_factor) / (1 + bond_curves[i])
             if pv_factor > 0:
-                s[i] = 1 / pv_factor ** (1.0 / i) - 1.0
+                s[i] = (1 / pv_factor) ** (1.0 / i) - 1.0
             annuity_factor += pv_factor
         matching_tenor_indices = [0, 1, 2, 4, 6, 10, 14, 20, 40, 60]
         for i in range(10):
             spot_rates[i] = (1 + s[matching_tenor_indices[i]]) ** 2 - 1
+        return spot_rates
 
 
 if __name__ == "__main__":

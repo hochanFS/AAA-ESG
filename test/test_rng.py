@@ -1,6 +1,10 @@
 import unittest
 from esg.rng import AaaRandomNumberGenerator
 
+# Solutions are found by running the original Excel VBA itself.
+
+SOLUTION1 = 0.791059921432467
+
 
 class TestAaaRandomNumberGenerator(unittest.TestCase):
     def test_get_next(self):
@@ -9,5 +13,5 @@ class TestAaaRandomNumberGenerator(unittest.TestCase):
         for i in range(360):
             for j in range(11):
                 a = rng.get_next()
-        self.assertAlmostEquals(first=0.791059921432467, second=a, delta=0.0001)
+        self.assertAlmostEqual(first=SOLUTION1, second=a, delta=0.000001)
 
