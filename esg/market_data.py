@@ -4,6 +4,7 @@ import xmltodict
 from http import client
 import logging
 from collections import OrderedDict
+import math
 
 RELIABLE_WEBSITE1 = "www.google.com"
 RELIABLE_WEBSITE2 = "www.amazon.com"
@@ -127,9 +128,9 @@ class CommunityTreasuryCurveImporter(__CloudImporter):
         # Identify the corresponding index i for the specified date
         i = index_guess
         found_greater_than_date = i == len(dict_value)
-        found_less_than_date = i == 0
+        found_less_than_date = False
         closest_date = None
-        while not found_greater_than_date and not found_less_than_date:
+        while not found_greater_than_date or not found_less_than_date:
             if i == -1:
                 return self.__pull_data_from_previous_market_date(datetime.date(date.year - 1, 12, 31), date)
             if i == len(dict_value):
@@ -148,6 +149,7 @@ class CommunityTreasuryCurveImporter(__CloudImporter):
             if index_date > date:
                 found_greater_than_date = True
                 i -= 1
+        print(date)
         return self.__pull_data_from_previous_market_date(closest_date, date)
 
     @staticmethod
@@ -156,9 +158,8 @@ class CommunityTreasuryCurveImporter(__CloudImporter):
         i = 0
         for key_name in CommunityTreasuryCurveImporter.DATA_KEY:
             if key_name in dictionary_val.keys() and CommunityTreasuryCurveImporter.HEADER5 in dictionary_val[key_name]:
-                cleaned_data.setdefault(CommunityTreasuryCurveImporter.CLEAN_KEY[i], int(
-                                        float(dictionary_val[key_name][CommunityTreasuryCurveImporter.HEADER5]) * 10000)
-                                        / 1000000.0)
+                value = round(float(dictionary_val[key_name][CommunityTreasuryCurveImporter.HEADER5]) * 100) / 10000.0
+                cleaned_data.setdefault(CommunityTreasuryCurveImporter.CLEAN_KEY[i], value)
             else:
                 cleaned_data.setdefault(CommunityTreasuryCurveImporter.CLEAN_KEY[i], None)
             i += 1
@@ -167,4 +168,4 @@ class CommunityTreasuryCurveImporter(__CloudImporter):
 
 if __name__ == "__main__":
     treasury = CommunityTreasuryCurveImporter()
-    print(treasury.pull_data(datetime.date(2018, 2, 7)))
+    print(treasury.pull_data(datetime.date(2020, 2, 3)))

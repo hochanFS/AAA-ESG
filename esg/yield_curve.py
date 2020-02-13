@@ -75,7 +75,7 @@ class CurveConstructor(object):
 
 
 if __name__ == "__main__":
-    now_date = datetime.date(2020, 2, 6)
+    now_date = datetime.date(2020, 2, 3)
     importer = CommunityTreasuryCurveImporter()
     imported_data = importer.pull_data(now_date)
     print(imported_data)
